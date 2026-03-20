@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="msvalidate.01" content="5C0FF9171EC2A160DA6A67DCF9612D6E" />
+    <meta name="baidu-site-verification" content="codeva-qGwxfbZx8M" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    
+    <title>新启年资源中心</title>
+    <meta name="description" content="系统镜像、PE工具、Office、软件下载">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        secondary: '#8E8E93',
+                        apple: {
+                            light: { bg: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F' },
+                            dark: { bg: '#111111', card: '#1C1C1E', text: '#F5F5F7' }
+                        }
+                    },
+                    boxShadow: {
+                        apple: '0 4px 20px rgba(0,0,0,0.06)',
+                        'apple-hover': '0 8px 30px rgba(0,0,0,0.1)',
+                    },
+                    borderRadius: { apple: '16px', 'apple-xl': '20px' }
+                }
+            }
+        }
+    </script>
+    <style>
+        @layer utilities {
+            .transition-apple { transition: all 0.3s cubic-bezier(0.25,0.1,0.25,1); }
+            .glass { background: rgba(255,255,255,0.7); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+            .dark .glass { background: rgba(30,30,30,0.7); }
+            .search-icon { cursor: pointer; }
+        }
+        
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .dark .modal-content {
+            background-color: #1C1C1E;
+            color: #F5F5F7;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        .dark .modal-header {
+            border-bottom-color: #333;
+        }
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: #8E8E93;
+        }
+        .modal-body {
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #E5E5E5;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .dark .modal-footer {
+            border-top-color: #333;
+        }
+        .modal-btn {
+            padding: 8px 24px;
+            background-color: #007AFF;
+            color: white;
+            border-radius: 9999px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .qr-code {
+            max-width: 200px;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body class="font-sans bg-apple-light-bg text-apple-light-text dark:bg-apple-dark-bg dark:text-apple-dark-text transition-apple min-h-screen">
+
+<!-- 导航 -->
+<header class="sticky top-0 z-50 glass border-b border-black/5 dark:border-white/5">
+    <div class="container mx-auto px-5 sm:px-8 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-rocket text-primary text-2xl"></i>
+                <span class="text-xl font-semibold">新启年资源中心</span>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <!-- 赞助按钮 -->
+                <button id="sponsor-btn" class="px-4 py-2 rounded-full text-sm bg-yellow-500 text-white hover:bg-yellow-600 transition flex items-center gap-1" onclick="showQRModal()">
+                    <i class="fa fa-heart"></i> 赞助
+                </button>
+                <button id="lang-toggle" class="px-4 py-2 rounded-full text-sm hover:bg-black/5 dark:hover:bg-white/5">English</button>
+                <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5">
+                    <i class="fa fa-moon-o dark:hidden"></i>
+                    <i class="fa fa-sun-o hidden dark:block"></i>
+                </button>
+            </div>
+            <button id="menu-btn" class="md:hidden w-10 h-10 rounded-full hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- 移动端菜单 -->
+<div id="mobile-menu" class="md:hidden hidden glass border-b border-black/5 dark:border-white/5">
+    <div class="container mx-auto px-5 py-4 space-y-2">
+        <button id="sponsor-btn-mobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5" onclick="showQRModal()">
+            <i class="fa fa-heart text-yellow-500"></i> 赞助
+        </button>
+        <button id="lang-toggle-mobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">English</button>
+        <button id="theme-toggle-mobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">
+            <i class="fa fa-moon-o dark:hidden"></i>
+            <i class="fa fa-sun-o hidden dark:block"></i>
+            <span class="ml-2">暗色模式</span>
+        </button>
+    </div>
+</div>
+
+<!-- 赞助弹窗 -->
+<div id="sponsorModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="font-semibold">赞助支持</span>
+            <span class="modal-close" onclick="closeModal()">✕</span>
+        </div>
+        <div class="modal-body">
+            <div>
+                <img src="https://pan.xqn.cc.cd/static/l.png" alt="赞助二维码" class="qr-code" style="max-width: 200px; margin: 0 auto 20px;">
+                <p>感谢支持！</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" onclick="closeModal()">确定</button>
+        </div>
+    </div>
+</div>
+
+<main class="container mx-auto px-5 sm:px-8 py-10 max-w-6xl">
+    
+    <!-- 问候语 -->
+    <div class="max-w-xl mx-auto mb-2">
+        <p id="greeting" class="text-xl font-semibold"></p>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="max-w-xl mx-auto mb-10">
+        <div class="relative">
+            <input id="searchInput" placeholder="搜索资源" 
+                class="w-full py-4 px-5 pl-12 bg-apple-light-card dark:bg-apple-dark-card rounded-apple-xl shadow-apple outline-none focus:ring-2 focus:ring-primary/30"
+                onkeydown="if(event.key==='Enter') globalSearch()">
+            <i class="fa fa-search absolute left-5 top-1/2 -translate-y-1/2 text-secondary search-icon" onclick="globalSearch()"></i>
+        </div>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="mb-10">
+        <h2 id="categories-title" class="text-xl font-semibold mb-5">分类</h2>
+        <div id="categoryList" class="flex flex-wrap gap-3">
+            <button onclick="loadRootFolder()" id="cat-all" 
+                class="category-btn bg-primary text-white px-5 py-2.5 rounded-full text-sm">
+                全部
+            </button>
+        </div>
+    </div>
+
+    <!-- 面包屑导航 -->
+    <div class="mb-4 flex items-center flex-wrap gap-2 text-sm" id="pathNav"></div>
+
+    <!-- 文件列表容器 -->
+    <div id="fileList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="col-span-full text-center py-10 text-secondary">加载中...</div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="py-8 text-center text-secondary text-sm">
+    <p>© 2026 新启年工作室 · 小清墨制作</p>
+</footer>
+
+<script>
+    // ==================== API 配置 ====================
+    const API_BASE = 'https://pan.xqn.cc.cd';  // 你的 Python API 地址
+    
+    // ==================== 全局变量 ====================
+    let currentFolder = '0';
+    let currentPath = [{ id: '0', name: '根目录' }];
+    let categories = [];
+    let allItems = [];
+    let allFilesCache = [];
+    let lang = 'zh';
+
+    // ==================== 多语言文本 ====================
+    const texts = {
+        en: {
+            categories: 'Categories',
+            all: 'All',
+            folder: 'Folder',
+            download: 'Download',
+            empty: '📂 Empty folder',
+            loading: 'Loading...',
+            loadFailed: 'Load failed',
+            searchLoading: 'Searching...',
+            noResults: 'No results found',
+            root: 'Root',
+            clickEnter: 'Click to enter',
+            searchPlaceholder: 'Search resources',
+            darkMode: 'Dark mode'
+        },
+        zh: {
+            categories: '分类',
+            all: '全部',
+            folder: '文件夹',
+            download: '下载',
+            empty: '📂 空文件夹',
+            loading: '加载中...',
+            loadFailed: '加载失败',
+            searchLoading: '搜索中...',
+            noResults: '没有找到匹配的内容',
+            root: '根目录',
+            clickEnter: '点击进入',
+            searchPlaceholder: '搜索资源',
+            darkMode: '暗色模式'
+        }
+    };
+
+    // ==================== 初始化 ====================
+    const hour = new Date().getHours();
+    const greeting = document.getElementById('greeting');
+    if (hour < 6) greeting.innerText = '夜深了，注意休息';
+    else if (hour < 12) greeting.innerText = '早上好 🌤️';
+    else if (hour < 14) greeting.innerText = '中午好 ☀️';
+    else if (hour < 18) greeting.innerText = '下午好 🌥️';
+    else greeting.innerText = '晚上好 🌙';
+
+    // 语言切换
+    function toggleLang() {
+        lang = lang === 'en' ? 'zh' : 'en';
+        document.getElementById('lang-toggle').innerText = lang === 'en' ? '中文' : 'English';
+        const mobileBtn = document.getElementById('lang-toggle-mobile');
+        if (mobileBtn) mobileBtn.innerText = lang === 'en' ? '中文' : 'English';
+        
+        updateUILanguage();
+        updatePath();
+        if (currentFolder === '0') updateCategoryButtons();
+        renderFileList(allItems);
+    }
+
+    document.getElementById('lang-toggle').onclick = toggleLang;
+    const mobileLangBtn = document.getElementById('lang-toggle-mobile');
+    if (mobileLangBtn) mobileLangBtn.onclick = toggleLang;
+
+    function t(key) {
+        return texts[lang][key] || key;
+    }
+
+    function updateUILanguage() {
+        document.getElementById('categories-title').innerText = t('categories');
+        document.getElementById('cat-all').innerText = t('all');
+        document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+    }
+
+    // 暗黑模式
+    const html = document.documentElement;
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+        html.classList.add('dark');
+    }
+    
+    function toggleTheme() {
+        html.classList.toggle('dark');
+        localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+    }
+    
+    document.getElementById('theme-toggle').onclick = toggleTheme;
+    const mobileThemeBtn = document.getElementById('theme-toggle-mobile');
+    if (mobileThemeBtn) mobileThemeBtn.onclick = toggleTheme;
+
+    // 移动菜单
+    document.getElementById('menu-btn').onclick = () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    };
+
+    // 赞助弹窗
+    function showQRModal() {
+        document.getElementById('sponsorModal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('sponsorModal').style.display = 'none';
+    }
+
+    // ==================== API 调用 ====================
+    async function fetchAPI(path) {
+        try {
+            const res = await fetch(API_BASE + path);
+            return await res.json();
+        } catch (error) {
+            console.error('API failed:', error);
+            return null;
+        }
+    }
+
+    async function getFileList(folderId) {
+        return await fetchAPI(`/api/list?folderId=${folderId}`);
+    }
+
+    function formatSize(kb) {
+        if (!kb) return '0KB';
+        if (kb < 1024) return kb + 'KB';
+        if (kb < 1024*1024) return (kb / 1024).toFixed(1) + 'MB';
+        return (kb / (1024*1024)).toFixed(1) + 'GB';
+    }
+
+    // ==================== 加载所有文件到缓存 ====================
+    async function loadAllFiles() {
+        allFilesCache = [];
+        
+        async function scanFolder(folderId, path) {
+            const data = await getFileList(folderId);
+            if (data && data.code === 200) {
+                const items = data.list || [];
+                
+                items.forEach(item => {
+                    allFilesCache.push({
+                        ...item,
+                        searchPath: path,
+                        folderId: folderId
+                    });
+                });
+                
+                const subFolders = items.filter(i => i.fileType === 2);
+                for (const folder of subFolders) {
+                    const folderName = folder.folderName || '文件夹';
+                    await scanFolder(folder.folderId, path + '/' + folderName);
+                }
+            }
+        }
+        
+        await scanFolder('0', '根目录');
+        console.log('缓存加载完成，共', allFilesCache.length, '个项目');
+    }
+
+    // ==================== 全局搜索 ====================
+    async function globalSearch() {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (!keyword) {
+            loadFolder(currentFolder, currentPath[currentPath.length-1].name);
+            return;
+        }
+        
+        document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('searchLoading')}</div>`;
+        
+        if (allFilesCache.length === 0) {
+            await loadAllFiles();
+        }
+        
+        const results = allFilesCache.filter(item => {
+            const name = (item.fileName || item.folderName || '').toLowerCase();
+            return name.includes(keyword);
+        });
+        
+        if (results.length === 0) {
+            document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('noResults')}</div>`;
+        } else {
+            renderSearchResults(results);
+        }
+    }
+
+    // ==================== 渲染搜索结果 ====================
+    function renderSearchResults(results) {
+        let html = '';
+        
+        results.forEach(item => {
+            const isFolder = item.fileType === 2;
+            const name = item.fileName || item.folderName || 'Unknown';
+            const size = isFolder ? '' : formatSize(item.fileSize);
+            
+            if (isFolder) {
+                html += `
+                    <div class="resource-card bg-apple-light-card dark:bg-apple-dark-card rounded-apple shadow-apple p-6 transition-apple hover:shadow-apple-hover cursor-pointer"
+                         onclick="loadFolder('${item.folderId}', '${name}')">
+                        <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-apple flex items-center justify-center mb-4">
+                            <i class="fa fa-folder text-xl text-yellow-500"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-1 truncate">${name}</h3>
+                        <p class="text-secondary text-sm mb-4">${t('folder')}</p>
+                        <span class="text-primary text-sm">${t('clickEnter')}</span>
+                    </div>
+                `;
+            } else {
+                let iconColor = 'bg-blue-500';
+                let icon = 'fa-file-o';
+                
+                const lowerName = name.toLowerCase();
+                if (lowerName.includes('.iso') || lowerName.includes('windows') || lowerName.includes('win')) {
+                    iconColor = 'bg-purple-500';
+                    icon = 'fa-file-archive-o';
+                } else if (lowerName.includes('.exe') || lowerName.includes('.msi')) {
+                    iconColor = 'bg-green-500';
+                    icon = 'fa-cog';
+                } else if (lowerName.includes('.pdf')) {
+                    iconColor = 'bg-red-500';
+                    icon = 'fa-file-pdf-o';
+                } else if (lowerName.includes('.txt')) {
+                    iconColor = 'bg-gray-500';
+                    icon = 'fa-file-text-o';
+                } else if (lowerName.includes('.apk')) {
+                    iconColor = 'bg-green-500';
+                    icon = 'fa-android';
+                } else if (lowerName.includes('.zip') || lowerName.includes('.rar') || lowerName.includes('.7z')) {
+                    iconColor = 'bg-yellow-500';
+                    icon = 'fa-file-archive-o';
+                } else if (lowerName.includes('病毒') || lowerName.includes('virus') || lowerName.includes('malware')) {
+                    iconColor = 'bg-red-600';
+                    icon = 'fa-bug';
+                }
+                
+                html += `
+                    <div class="resource-card bg-apple-light-card dark:bg-apple-dark-card rounded-apple shadow-apple p-6 transition-apple hover:shadow-apple-hover">
+                        <div class="w-12 h-12 ${iconColor} rounded-apple flex items-center justify-center mb-4">
+                            <i class="fa ${icon} text-xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-1 truncate">${name}</h3>
+                        <p class="text-secondary text-sm mb-4">${size}</p>
+                        <a href="${API_BASE}/api/download?fileId=${item.fileId}&name=${encodeURIComponent(name)}" 
+                           target="_blank"
+                           class="inline-block w-full text-center px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition"
+                           onclick="event.stopPropagation()">
+                            ${t('download')}
+                        </a>
+                    </div>
+                `;
+            }
+        });
+        
+        document.getElementById('fileList').innerHTML = html;
+    }
+
+    // ==================== 加载根目录 ====================
+    async function loadRootFolder() {
+        currentFolder = '0';
+        currentPath = [{ id: '0', name: '根目录' }];
+        updatePath();
+        
+        document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('loading')}</div>`;
+        
+        const data = await getFileList('0');
+        if (data && data.code === 200) {
+            const items = data.list || [];
+            
+            categories = items.filter(item => item.fileType === 2).map(folder => ({
+                id: folder.folderId,
+                name: folder.folderName || 'Unnamed'
+            }));
+            
+            updateCategoryButtons();
+            allItems = items;
+            renderFileList(allItems);
+            highlightCategory('all');
+            
+            setTimeout(() => {
+                if (allFilesCache.length === 0) {
+                    loadAllFiles();
+                }
+            }, 1000);
+        } else {
+            document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('loadFailed')}</div>`;
+        }
+    }
+
+    // ==================== 加载指定文件夹 ====================
+    async function loadFolder(folderId, folderName) {
+        currentFolder = folderId;
+        currentPath = [
+            { id: '0', name: '根目录' },
+            { id: folderId, name: folderName }
+        ];
+        updatePath();
+        
+        document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('loading')}</div>`;
+        
+        const data = await getFileList(folderId);
+        if (data && data.code === 200) {
+            allItems = data.list || [];
+            renderFileList(allItems);
+            highlightCategory(folderName);
+        } else {
+            document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('loadFailed')}</div>`;
+        }
+    }
+
+    // ==================== 更新分类按钮 ====================
+    function updateCategoryButtons() {
+        const container = document.getElementById('categoryList');
+        container.innerHTML = `<button onclick="loadRootFolder()" id="cat-all" class="category-btn bg-primary text-white px-5 py-2.5 rounded-full text-sm">${t('all')}</button>`;
+        
+        categories.sort((a, b) => a.name.localeCompare(b.name));
+        
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'category-btn bg-apple-light-card dark:bg-apple-dark-card px-5 py-2.5 rounded-full text-sm hover:bg-black/5 dark:hover:bg-white/5';
+            btn.innerText = cat.name;
+            btn.onclick = () => loadFolder(cat.id, cat.name);
+            btn.setAttribute('data-category', cat.name);
+            container.appendChild(btn);
+        });
+    }
+
+    function highlightCategory(categoryName) {
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('bg-apple-light-card', 'dark:bg-apple-dark-card');
+        });
+        
+        if (categoryName === 'all') {
+            document.getElementById('cat-all').classList.add('bg-primary', 'text-white');
+        } else {
+            const target = Array.from(document.querySelectorAll('.category-btn')).find(
+                btn => btn.innerText === categoryName
+            );
+            if (target) {
+                target.classList.add('bg-primary', 'text-white');
+            }
+        }
+    }
+
+    // ==================== 渲染文件列表 ====================
+    function renderFileList(items) {
+        if (!items || items.length === 0) {
+            document.getElementById('fileList').innerHTML = `<div class="col-span-full text-center py-10 text-secondary">${t('empty')}</div>`;
+            return;
+        }
+
+        const folders = items.filter(i => i.fileType === 2);
+        const files = items.filter(i => i.fileType !== 2);
+        
+        let html = '';
+        
+        folders.forEach(f => {
+            const name = f.folderName || f.fileName || 'Folder';
+            html += `
+                <div class="resource-card bg-apple-light-card dark:bg-apple-dark-card rounded-apple shadow-apple p-6 transition-apple hover:shadow-apple-hover cursor-pointer"
+                     onclick="loadFolder('${f.folderId}', '${name}')">
+                    <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-apple flex items-center justify-center mb-4">
+                        <i class="fa fa-folder text-xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1 truncate">${name}</h3>
+                    <p class="text-secondary text-sm mb-4">${t('folder')}</p>
+                    <span class="text-primary text-sm">${t('clickEnter')}</span>
+                </div>
+            `;
+        });
+        
+        files.forEach(f => {
+            const name = f.fileName || 'Unknown';
+            const size = formatSize(f.fileSize);
+            
+            let iconColor = 'bg-blue-500';
+            let icon = 'fa-file-o';
+            
+            const lowerName = name.toLowerCase();
+            if (lowerName.includes('.iso') || lowerName.includes('windows') || lowerName.includes('win')) {
+                iconColor = 'bg-purple-500';
+                icon = 'fa-file-archive-o';
+            } else if (lowerName.includes('.exe') || lowerName.includes('.msi')) {
+                iconColor = 'bg-green-500';
+                icon = 'fa-cog';
+            } else if (lowerName.includes('.pdf')) {
+                iconColor = 'bg-red-500';
+                icon = 'fa-file-pdf-o';
+            } else if (lowerName.includes('.txt')) {
+                iconColor = 'bg-gray-500';
+                icon = 'fa-file-text-o';
+            } else if (lowerName.includes('.apk')) {
+                iconColor = 'bg-green-500';
+                icon = 'fa-android';
+            } else if (lowerName.includes('.zip') || lowerName.includes('.rar') || lowerName.includes('.7z')) {
+                iconColor = 'bg-yellow-500';
+                icon = 'fa-file-archive-o';
+            } else if (lowerName.includes('病毒') || lowerName.includes('virus') || lowerName.includes('malware')) {
+                iconColor = 'bg-red-600';
+                icon = 'fa-bug';
+            }
+            
+            html += `
+                <div class="resource-card bg-apple-light-card dark:bg-apple-dark-card rounded-apple shadow-apple p-6 transition-apple hover:shadow-apple-hover">
+                    <div class="w-12 h-12 ${iconColor} rounded-apple flex items-center justify-center mb-4">
+                        <i class="fa ${icon} text-xl text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1 truncate">${name}</h3>
+                    <p class="text-secondary text-sm mb-4">${size}</p>
+                    <a href="${API_BASE}/api/download?fileId=${f.fileId}&name=${encodeURIComponent(name)}" 
+                       target="_blank"
+                       class="inline-block w-full text-center px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition"
+                       onclick="event.stopPropagation()">
+                        ${t('download')}
+                    </a>
+                </div>
+            `;
+        });
+        
+        document.getElementById('fileList').innerHTML = html;
+    }
+
+    // ==================== 更新面包屑 ====================
+    function updatePath() {
+        const nav = document.getElementById('pathNav');
+        let html = '';
+        
+        currentPath.forEach((p, i) => {
+            if (i > 0) html += '<span class="text-secondary mx-1">›</span>';
+            
+            if (i === currentPath.length - 1) {
+                const displayName = i === 0 ? t('root') : p.name;
+                html += `<span class="text-secondary">${displayName}</span>`;
+            } else {
+                const displayName = i === 0 ? t('root') : p.name;
+                html += `<span class="cursor-pointer text-primary hover:underline" onclick="goToPath(${i})">${displayName}</span>`;
+            }
+        });
+        
+        nav.innerHTML = html;
+    }
+
+    function goToPath(index) {
+        const targetPath = currentPath[index];
+        if (!targetPath) return;
+        
+        currentPath = currentPath.slice(0, index + 1);
+        currentFolder = targetPath.id;
+        loadFolder(currentFolder, targetPath.name);
+    }
+
+    // ==================== 初始化加载 ====================
+    loadRootFolder();
+</script>
+</body>
+</html>
