@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推荐工具网站 - 新启年资源中心</title>
+    <meta name="description" content="精选实用工具网站推荐">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        secondary: '#8E8E93',
+                        apple: {
+                            light: { bg: '#F5F5F7', card: '#FFFFFF', text: '#1D1D1F' },
+                            dark: { bg: '#111111', card: '#1C1C1E', text: '#F5F5F7' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @layer utilities {
+            .transition-apple { transition: all 0.3s cubic-bezier(0.25,0.1,0.25,1); }
+            .glass { background: rgba(255,255,255,0.7); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+            .dark .glass { background: rgba(30,30,30,0.7); }
+        }
+        .tool-card {
+            transition: all 0.2s;
+        }
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .search-icon {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="font-sans bg-apple-light-bg text-apple-light-text dark:bg-apple-dark-bg dark:text-apple-dark-text transition-apple min-h-screen">
+
+<header class="sticky top-0 z-50 glass border-b border-black/5 dark:border-white/5">
+    <div class="container mx-auto px-5 sm:px-8 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="xqn.png" alt="XQN Logo" class="w-8 h-8 object-contain">
+                <span class="text-xl font-semibold">推荐工具网站</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="px-4 py-2 rounded-full text-sm hover:bg-black/5 dark:hover:bg-white/5 transition">
+                    <i class="fa fa-home"></i> 返回首页
+                </a>
+                <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5">
+                    <i class="fa fa-moon-o dark:hidden"></i>
+                    <i class="fa fa-sun-o hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container mx-auto px-5 sm:px-8 py-10 max-w-6xl">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">推荐工具网站</h1>
+        <p class="text-secondary">精选实用工具，让工作更高效</p>
+    </div>
+    
+    <!-- 搜索框 -->
+    <div class="max-w-xl mx-auto mb-10">
+        <div class="relative">
+            <input id="searchInput" placeholder="搜索工具（名称、描述或链接）" 
+                class="w-full py-3 px-5 pl-12 bg-apple-light-card dark:bg-apple-dark-card rounded-apple-xl shadow-apple outline-none focus:ring-2 focus:ring-primary/30"
+                onkeyup="if(event.key==='Enter') searchTools()">
+            <i class="fa fa-search absolute left-5 top-1/2 -translate-y-1/2 text-secondary search-icon" onclick="searchTools()"></i>
+        </div>
+        <div id="searchResult" class="mt-2 text-sm text-secondary text-center"></div>
+    </div>
+    
+    <!-- 工具列表容器 -->
+    <div id="toolsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full text-center py-10 text-secondary">加载中...</div>
+    </div>
+</main>
+
+<footer class="py-8 text-center text-secondary text-sm border-t border-black/5 dark:border-white/5">
+    <p>© 2026 新启年工作室 · 小清墨与windf制作</p>
+</footer>
+
+<script>
+    const API_BASE = 'https://pan.xqn.cc.cd';
+    let allTools = [];
+    
+    // 暗黑模式
+    const html = document.documentElement;
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+        html.classList.add('dark');
+    }
+    document.getElementById('theme-toggle').onclick = () => {
+        html.classList.toggle('dark');
+        localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+    };
+    
+    // 加载工具列表
+    async function loadTools() {
+        try {
+            const res = await fetch(API_BASE + '/api/tools');
+            const data = await res.json();
+            if (data.code === 200) {
+                allTools = data.list || [];
+                renderTools(allTools);
+            } else {
+                document.getElementById('toolsList').innerHTML = '<div class="col-span-full text-center py-10 text-secondary">加载失败</div>';
+            }
+        } catch (error) {
+            console.error('加载失败:', error);
+            document.getElementById('toolsList').innerHTML = '<div class="col-span-full text-center py-10 text-secondary">加载失败</div>';
+        }
+    }
+    
+    // 渲染工具列表
+    function renderTools(tools) {
+        if (!tools || tools.length === 0) {
+            document.getElementById('toolsList').innerHTML = '<div class="col-span-full text-center py-10 text-secondary">暂无推荐工具，敬请期待</div>';
+            document.getElementById('searchResult').innerText = '';
+            return;
+        }
+        
+        let html = '';
+        tools.forEach(tool => {
+            html += `
+                <div class="tool-card bg-apple-light-card dark:bg-apple-dark-card rounded-apple shadow-apple p-6 transition-apple hover:shadow-apple-hover">
+                    <h3 class="text-lg font-semibold mb-2 truncate">${escapeHtml(tool.name)}</h3>
+                    <p class="text-secondary text-sm mb-3 line-clamp-2">${escapeHtml(tool.description || '暂无描述')}</p>
+                    <div class="flex items-center justify-between mt-4">
+                        <a href="${escapeHtml(tool.url)}" target="_blank" class="inline-block px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 transition">
+                            <i class="fa fa-external-link"></i> 访问网站
+                        </a>
+                        <span class="text-xs text-secondary">${tool.create_time || ''}</span>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('toolsList').innerHTML = html;
+        document.getElementById('searchResult').innerText = `共找到 ${tools.length} 个工具`;
+    }
+    
+    // 简单防XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // 搜索工具
+    function searchTools() {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (!keyword) {
+            renderTools(allTools);
+            return;
+        }
+        
+        const filtered = allTools.filter(tool => {
+            return tool.name.toLowerCase().includes(keyword) ||
+                   (tool.description && tool.description.toLowerCase().includes(keyword)) ||
+                   tool.url.toLowerCase().includes(keyword);
+        });
+        
+        renderTools(filtered);
+    }
+    
+    // 初始化
+    loadTools();
+</script>
+</body>
+</html>
