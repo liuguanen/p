@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="msvalidate.01" content="5C0FF9171EC2A160DA6A67DCF9612D6E" />
     <meta name="baidu-site-verification" content="codeva-qGwxfbZx8M" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     
     <title>新启年资源中心</title>
     <meta name="description" content="系统镜像、PE工具、Office、软件下载">
@@ -139,6 +138,9 @@
                 <span class="text-xl font-semibold">新启年资源中心</span>
             </div>
             <div class="hidden md:flex items-center gap-3">
+                <a href="tools.html" class="px-4 py-2 rounded-full text-sm bg-green-500 text-white hover:bg-green-600 transition flex items-center gap-1">
+                    <i class="fa fa-globe"></i> 推荐工具
+                </a>
                 <button id="sponsor-btn" class="px-4 py-2 rounded-full text-sm bg-yellow-500 text-white hover:bg-yellow-600 transition flex items-center gap-1" onclick="showModal()">
                     <i class="fa fa-heart"></i> 赞助
                 </button>
@@ -157,6 +159,9 @@
 
 <div id="mobile-menu" class="md:hidden hidden glass border-b border-black/5 dark:border-white/5">
     <div class="container mx-auto px-5 py-4 space-y-2">
+        <a href="tools.html" class="w-full text-left px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+            <i class="fa fa-globe"></i> 推荐工具
+        </a>
         <button id="sponsor-btn-mobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5" onclick="showModal()">
             <i class="fa fa-heart text-yellow-500"></i> 赞助
         </button>
@@ -177,6 +182,7 @@
         </div>
         <div class="modal-body" id="modalBody">
             <p>有问题加群1083476951 <span class="modal-link" onclick="showQR()">给一个赞助吧</span> 真的很感谢</p>
+            <p style="margin-top: 12px;"><span class="modal-link" onclick="gotoTools()">推荐工具网站</span></p>
         </div>
         <div class="modal-footer">
             <button class="modal-btn" onclick="closeModal()">确定</button>
@@ -282,7 +288,7 @@
         document.getElementById('sponsorModal').style.display = 'none';
         const modalBody = document.getElementById('modalBody');
         if (modalBody.querySelector('img')) {
-            modalBody.innerHTML = '<p>有问题加群1083476951 <span class="modal-link" onclick="showQR()">给一个赞助吧</span> 真的很感谢</p>';
+            modalBody.innerHTML = '<p>有问题加群1083476951 <span class="modal-link" onclick="showQR()">给一个赞助吧</span> 真的很感谢</p><p style="margin-top: 12px;"><span class="modal-link" onclick="gotoTools()">推荐工具网站</span></p>';
         }
     }
     
@@ -294,6 +300,10 @@
                 <p>感谢支持！</p>
             </div>
         `;
+    }
+    
+    function gotoTools() {
+        window.location.href = 'tools.html';
     }
     
     window.addEventListener('load', function() {
